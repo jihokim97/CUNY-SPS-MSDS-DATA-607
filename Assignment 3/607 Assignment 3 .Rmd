@@ -1,0 +1,89 @@
+---
+title: "Assignment 3"
+author: "Jiho Kim"
+date: "9/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# 1. Provide code that identifies the major that contain either "DATA" or " Statistics" in dataset.
+
+```{r data}
+majors <- read.csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/college-majors/all-ages.csv', header = T)
+majordf <- data.frame(majors)
+data_stat<-subset(majordf, grepl("DATA",Major) | grepl("STATISTICS", Major), Major)
+data_stat
+```
+
+
+# 2. Write code that transforms the data 
+
+```{r fruitlist}
+fruitlist <- c('bell pepper','bilberry', 'blackberry', 'blood orange','blueberry','cantaloupe', 'chili pepper','cloudberry','elderberry','lime','lychee','mulberry','olive','salal berry')
+
+dput(as.character(fruitlist))
+```
+
+# 3 Decribe, in words, what these expression will match
+
+(.)\1\1
+
+This expression would match character that appears 3 times in a row.
+
+(.)(.)\2\1
+
+matches a letter in order of 1st letter-2nd letter-1st letter-2nd letter.
+
+(..)\1
+
+It would match any 2 character repeated consecutively. 
+
+(.).\1.\1
+
+It would match with first character repeated 3 times with second character repeated 2 times in between
+
+(.)(.)(.).*\\3\\2\\1
+
+It would match with any 3 characters followed by any characters ending with the original 3 characters in reverse
+
+
+# 4 Construct regular expressions
+
+```{r word list}
+library(tidyverse)
+words <- c('mom','dead','test','banana','church','eleven','Mississippi')
+```
+
+start and end with the same character:
+```{r same character}
+first_end <- str_subset(words, "^(.).*\\1$")
+first_end
+```
+
+contain a repeated pair of letters:
+```{r repeat}
+repeatword <- str_subset(words, "([A-Za-z][A-Za-z]).*\\1")
+repeatword
+```
+
+conatin one letter repeated in at least three places:
+```{r threetimes}
+threetimes <- str_subset(words, "([A-Za-z]).*\\1.*\\1")
+threetimes
+```
+
+
+
+
+
+
+
+
+
+
+
+
