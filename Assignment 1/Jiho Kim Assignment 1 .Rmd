@@ -1,0 +1,97 @@
+---
+title: "Data 607 Assignment 1"
+author: "Jiho Kim"
+date: "8/29/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+# Overview
+
+Super bowl advertisements are considered to be the most popular commercials in the United States where companies present creative advertisements to draw viewer's attentions. The dataset from 233 commercials were categorized into 7 different characteristics and the goal is to create a barlpot to visualize the frequencies of each category. The article can be found on https://projects.fivethirtyeight.com/super-bowl-ads/
+
+# Import and load the dataset
+Load the file from github we must indicate that header = T since there is header
+
+```{r setup, include=TRUE}
+knitr::opts_chunk$set(echo = T)
+library(readr)
+urlfile = 'https://raw.githubusercontent.com/fivethirtyeight/superbowl-ads/main/superbowl-ads.csv'
+mydata<-read.csv(url(urlfile), header = T, sep = ',')
+```
+
+# Check the variables
+check variable names using head function
+```{r superbowl}
+
+head(mydata)
+```
+
+
+# Transforming data into subset 
+
+creating a new subset data columns to see what themes have been used most frequently 
+```{r subset}
+newdata<- subset(mydata, select=c('funny','show_product_quickly','patriotic','celebrity','danger','animals','use_sex'))
+newdata
+```
+
+
+# Frequencies of the data
+get the counts of true value for each column
+
+```{r counts1}
+funnycount <- NROW(subset(newdata, funny == 'True'))
+funnycount
+
+```
+
+```{r counts2}
+showproductcount <- NROW(subset(newdata, show_product_quickly == 'True'))
+showproductcount
+```
+
+```{r counts3}
+patriotcount <- NROW(subset(newdata, patriotic == 'True'))
+patriotcount
+```
+```{r counts4}
+celebritycount <- NROW(subset(newdata, celebrity == 'True'))
+celebritycount
+```
+
+```{r counts5}
+dangercount <- NROW(subset(newdata, danger == 'True'))
+dangercount
+```
+
+```{r counts6}
+animalscount <- NROW(subset(newdata, animals == 'True'))
+animalscount
+```
+
+```{r counts7}
+usesexcount <- NROW(subset(newdata, use_sex == 'True'))
+usesexcount
+```
+
+```{r columnnames}
+counttable<- data.frame(funny = funnycount, showprodcutquickly = showproductcount, patriot = patriotcount, celebrity = celebritycount, danger= dangercount, animals = animalscount, usesex = usesexcount )
+
+counttable
+```
+
+
+# Bar plots
+
+creating barplot to see which was the most used 
+
+```{r bar plots}
+numcounts <- c(168,166,41,68,75,89,63)
+brplt <- barplot(numcounts, main ='frequencies of the characteristics in commercials', xlab='theme', ylab='numberofcounts', names.arg = c('funny','quickly','patriot','celebrity','danger','animals','usesex'),horiz = F)
+```
+
+---
+# Conclusion
+Based on the data, 25% of the commercials were funny commercials and 6% of the commercials used patriotic characteristics to draw viewer's attentions. It is clear that commercials with jokes and humor certainly drew viewer's attention. if I were to update the article, I would highlight this findings.
+
