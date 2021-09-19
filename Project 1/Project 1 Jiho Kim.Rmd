@@ -1,0 +1,89 @@
+---
+title: "Project 1"
+author: "Jiho Kim"
+date: "9/16/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Project Descrition
+
+In this project, you’re given a text file with chess tournament results where the information has some structure. Your job is to create an R Markdown file that generates a .CSV file (that could for example be imported into a SQL database) with the following information for all of the players: Player’s Name, Player’s State, Total Number of Points, Player’s Pre-Rating, and Average Pre Chess Rating of Opponents For the first player, the information would be: Gary Hua, ON, 6.0, 1794, 1605
+
+## Load the Data
+
+Chess data is retrieved from github
+
+First 4 row can be erased.
+
+```{r chessdata}
+chessdata <- read.table(url("https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/Project%201/tournamentinfo.txt"), sep = ',' , skip = 4)
+
+chessdata
+```
+
+## Wrangle Data
+
+```{r whitespace}
+i <- seq(0,192,3)
+chessdata <- chessdata[-i]
+
+chessdata
+
+```
+
+## Making data into matrix
+
+```{r matrix }
+mchessdata <- matrix(unlist(chessdata), byrow= T)
+
+m1 <- mchessdata[seq(1,length(mchessdata),3)]
+m1
+
+m2 <- mchessdata[seq(2,length(mchessdata),3)]
+m2
+```
+
+## Extracting Strings
+
+```{r capture}
+library(stringr)
+Id <- as.numeric(str_extract(m1, '\\d+'))
+Name <- str_extract(m1, '[A-z].{1,32}')
+Name <- str_trim(str_extract(Name, '.+\\s{2,}'))
+State <- str_extract(m2, '[A-z]{2}')
+Total.points <- as.numeric(str_extract(m1,'\\d+\\.\\d'))
+PreRating <- str_extract(m2, 'R:.{8,}-')
+PreRating <- as.numeric(str_extract(PreRating, '\\d{1,4}'))
+Rounds <- str_extract_all(m1, '[A-Z]\\s{2,}\\d+')
+Rounds <- str_extract_all(Rounds, '\\d+')
+```
+
+```{r avg}
+AvgOpp <- c()
+
+for(i in c(1:length(Rounds))){
+  AvgOpp[i] <- round(mean(PreRating[as.numeric(Rounds[[i]])]),0)
+}
+AvgOpp
+```
+
+## Making it into Data Frame
+
+```{r final}
+finalresult <- data.frame(Id,Name,State,Total.points,PreRating,AvgOpp)
+
+finalresult
+```
+
+## Final CSV file
+
+```{r csv}
+write.csv(finalresult, 'project1' , append = F)
+```
+
