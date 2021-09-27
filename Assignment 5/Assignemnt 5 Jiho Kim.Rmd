@@ -1,0 +1,82 @@
+---
+title: "Assignment 5"
+author: "Jiho Kim"
+date: "9/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Reaading the Data
+
+```{r data}
+library(readr)
+library(tidyverse)
+urlfile <- 'https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/Assignment%205/israeli_vaccination_data_analysis_start.csv'
+mydata <- read.csv(url(urlfile), header = TRUE)
+data.frame(mydata)
+
+```
+
+## Tidy Data
+
+```{r}
+
+colnames(mydata) <- c('Age', 'Unvaccinated', 'Vaccinated', 'Severe_Unvaccinated_Per100K', 'Severe_Vaccinated_Per100K')
+
+mydata <- mydata[2:5,1:5]
+
+```
+
+```{r}
+pop_underfifty <- mydata[2,2:3]
+pop_underfifty <- pop_underfifty %>% rename(percent_unvaccinated = Unvaccinated, percent_vaccinated = Vaccinated)
+```
+
+```{r}
+pop_overfifty <- mydata[4,2:3]
+pop_overfifty <- pop_overfifty %>% rename(percent_unvaccinated = Unvaccinated, percent_vaccianted = Vaccinated)
+```
+
+```{r}
+mydata <- add_column(mydata, pop_underfifty, .after = 'Vaccinated')
+```
+
+```{r}
+mydata[4:5,3:4] <- pop_overfifty
+```
+
+```{r}
+mydata <- mydata[-c(2,4,5),]
+
+```
+
+```{r}
+mydata[2,4:5] <- pop_overfifty
+```
+
+```{r}
+mydata
+```
+
+## Question 1
+
+Yes we do have enough information to caclculate the total population. Total population would represent poeple who are full vaccinated, not fully vaccinated or un-Vaccinated. 
+
+## Question 2
+
+Efficacy = 1-(% of fully vaxed severe cases) / (% not vaxed severe cases per 100k)
+
+```{r}
+class(mydata$Unvaccinated)='Numeric'
+class(mydata$Vaccinated)='Numeric'
+class(mydata$percent_unvaccinated)='Numeric'
+class(mydata$percent_vaccinated)= 'Numeric'
+class(mydata$Severe_Unvaccinated_Per100K)='Numeric'
+class(mydata$Severe_Vaccinated_Per100K)='Numeric'
+```
+
+For Some reasons, I kept getting error when trying to calcualte the efficacy and NA was introduced continously.
+
