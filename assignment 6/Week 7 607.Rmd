@@ -1,0 +1,49 @@
+---
+title: "Week 7 Assignment"
+author: "Jiho Kim"
+date: "10/10/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+For this Assignment I chose 3 of my favorite books and listed below:
+
+Great Gatsby By F.Scott Fitzerald
+1984 by George Orwell
+Fight Club by Chuck Palahniuk
+The Tailsman by Stephen King and Peter Straub
+
+## Importing HTML 
+
+The HTML is created and uploaded to github.
+```{r}
+library(RCurl)
+library(XML)
+
+html <- getURLContent('https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/assignment%206/book.html')
+df.html <- readHTMLTable(html, as.data.frame = TRUE)
+df.html
+```
+
+## Importing XML
+```{r}
+xml <- getURLContent('https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/assignment%206/book.xml')
+df.xml <- xmlToDataFrame(xml)
+df.xml
+```
+ 
+## Importing JSON
+```{r}
+library(jsonlite)
+json <- getURLContent('https://github.com/jihokim97/CUNY-SPS-MSDS-DATA-607/blob/main/assignment%206/book.json')
+jsondata <- fromJSON(json)
+df.json <- as.data.frame(jsondata)
+df.json
+```
+
+## Compare and Conlusion
+
+The html and xml data frames are identical. I had a trouble writing and reading json file, and I would like a kind feedback on what went wrong. Each structures had its own pros and cons. I prefered xml and html as json was more difficult to create and read.
