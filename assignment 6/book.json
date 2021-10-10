@@ -10,19 +10,19 @@
             "title": "1984",
             "author": "George Orwell",
             "genre": "Dystopian",
-            "published": "1949",
+            "published": "1949"
         },
         {
             "title": "Fight Club",
             "author": "Chuck Palahniuk",
             "genre": "Novel",
-            "published": "1996",
+            "published": "1996"
         },
         {
             "title": "The Tailsman",
             "author": "Stephen King and Peter Straub",
             "genre": "Horror Fiction",
-            "published": "1984",
+            "published": "1984"
         }
     ]
   }
