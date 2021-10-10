@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<books>
+    <book>
+        <Title>The Great Gatsby</Title>
+        <Author>F.Scott Fitzerald</Author>
+        <Genre>Historical Fiction</Genre>
+        <Published>1925</Published>
+    </book>
+    <book>
+        <Title>1984</Title>
+        <Author>George Orwell</Author>
+        <Genre>Dystopian</Genre>
+        <Published>1949</Published>
+    </book>
+    <book>
+        <Title>Fight Club</Title>
+        <Author>Chuck Palahniuk</Author>
+        <Genre>Novel</Genre>
+        <Published>1996</Published>
+    </book>
+    <book>
+        <Title>The Tailsman</Title>
+        <Author>Stephen King and Peter Staub</Author>
+        <Genre>Horror Fiction</Genre>
+        <Published>1984</Published>
+    </book>
+</books>
