@@ -1,0 +1,57 @@
+---
+title: "Assignment 9"
+author: "Jiho Kim"
+date: "10/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+To choose one of the New York Times APIs, construct an interface in R to read in the JSON data, and transform it into an R DataFrame.
+
+
+```{r}
+library(jsonlite)
+library(dplyr)
+```
+
+## Connecting to the API
+
+I set up account to retreive appropriate API key and I used NY Times Movie review API and used my API key and URL to retreive the data. 
+```{r}
+apikey <- 'IBAZ6dq08t5OBbTyp9l2DNvm44OhA9DT'
+http <- "https://api.nytimes.com/svc/movies/v2/reviews/search.json?api-key=IBAZ6dq08t5OBbTyp9l2DNvm44OhA9DT"
+```
+
+## Read JSON DATA
+
+Reading content in JSON 
+```{r}
+moviedf <- fromJSON(http)
+View(moviedf)
+class(moviedf)
+```
+
+## Transforming into Data frame
+
+Movie data is displayed in list so I have to convert the list to a dataframe with only variabloes of interest (title, rating, critics pick, and opening date ).
+
+```{r}
+finalmovie <- cbind(moviedf$results$display_title, moviedf$results$mpaa_rating,
+                    moviedf$results$critics_pick,moviedf$results$opening_date)
+finalmovie <- as.data.frame(finalmovie)
+View(finalmovie)
+## Renaming the column names
+
+colnames(finalmovie) <- c('Title','Rating','Critics_Pick','Opening_date')
+
+finalmovie
+```
+
+
+
+
