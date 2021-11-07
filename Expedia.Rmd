@@ -1,0 +1,76 @@
+---
+title: "Expedia - Recommender Systems"
+author: "Jiho Kim"
+date: "11/7/2021"
+output:
+  prettydoc::html_pretty:
+    theme: architect
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview 
+
+The goal of this assignment is to to analyze an existing recommender system of interest. This will include:
+
+Performing a Scenario Design analysis as described below. Considering whether it makes sense for your selected recommender system to perform scenario design twice, once for the organization (e.g. Amazon.com) and once for the organization’s customers.
+
+Attempt to reverse engineer what you can about the site, from the site interface and any available information that you can find on the Internet or elsewhere.
+
+Include specific recommendations about how to improve the site’s recommendation capabilities going forward.
+
+Create your report using an R Markdown file, and create a discussion thread with a link to the GitHub repo where your Markdown file notebook resides. You are not expected to need to write code for this discussion assignment.
+
+## Background
+
+Expedia is on online travel compnay that offeres travel metasearch engines for cosnumers and small business travel. 
+
+## Scenario Design
+
+**1.Who are your target users?**
+
+Expedia targets anyone who are looking to find and book flights,hotel, and cars for their trip.
+
+**2. What are their key goals?**
+
+Expedia's main goal is to provide an online platform service that would provide wide selection of most economical and hottest deal on flights,activities,attractions, and hotels for customers.
+
+The customers main goal is to find products(hotel, car rentals, flight tickets) fast, reliably and safely at the best price from anywhere and any time. 
+
+**3. How can you help them accomplish these goals?**
+
+  - Wide selection
+  -Competitive Pricing
+  -**Personalized Offer**
+  -**Reviews**
+
+## Reverse Engineering
+
+Expedia Partner Solutions uses deep learning models to improve booking process for partners and consumers. Expedia lists over 1 million hotels and flights in approximately 40k different cities around the world in 40 languages. So understanding fast and accurately what a consumer is looking for is a key.
+
+The company is implementing 3 stages process with algorithms :
+  - ** 1. Rapid API**
+  - ** 2. Real Time Sorting **
+  - ** 3. Recommendation API**
+
+Also, Expedia is partnered with AWS for its Natural Language Processing. Using NFP it trains model to understand the context in a phrase. It implemented NLP in their search engine, mobile app, and chat bot for better experience. 
+
+## Recommendation to improve the site's recommendation capabailities. 
+
+Currently, Expedia incorporates search parameters to make recommendation but there are not enough specific data to make personalize recommendation for each customers. This calls for a need to contextualize data to provide a personalized recommendation.
+
+**Content-Based System** : It examines user pattern and recommends to the user, For example, if a Expedia user has been flying in overnight flight, it finds a overnight flight for them.
+
+**Collaborative-Based System**: It examines similarity between other similar users and makes recommendations. 
+
+## Citation
+
+https://en.mlab.ai/engineering/how-expedia-uses-machine-learning-personalise-and-improve-user-experience
+
+https://www.phocuswire.com/Expedia-Partner-Solutions-machine-learning
+
+
+
