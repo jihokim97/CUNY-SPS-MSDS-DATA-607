@@ -1,0 +1,400 @@
+---
+title: "DATA 607 - Final Project"
+author: "Jiho Kim"
+date: "12/10/2021"
+output:
+  mdformats::readthedown: default
+  rmdformats::readthedown: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## BACKGROUD
+
+Michael Jordan or Lebron James?
+
+This is the question that sparked numerous interesting debate among the NBA fans and analysts. The who is NBA's greatest of all time has been hotly debated and still remained unanswered. A lot of people would argue that Jordan is the greatest ever to step on the court however Lebron James complicated and intensified the conversation as he continues to build an incredible resume. I thought it would be interesting to explore and "who is the greatest player of all time" might be.
+
+"Who is statistically better, Michael Jordan or Lebron James"?
+
+# APPROACH
+
+The following approah was made to answer the question above.
+
+- Acquire data on career statistics and games
+- Scrape career earning data from sportrac.com
+- Tidy and Trnasform the data 
+- Visualize
+- Analyze and conclude
+
+## DATA SOURCE(S)
+
+Hui Chen.(2021). "totals.stats" [.csvfile]. Retrieved from
+https://www.kaggle.com/edgarhuichen/nba-players-career-game-log
+
+Hui Chen.(2021). "allgame_stats" [.csvfile]. Retrieved from
+https://www.kaggle.com/edgarhuichen/nba-players-career-game-log
+
+I found well organized data on career statistics of Michael Jordan and Lebron James fomr Kaggle. However it contained the statistics of Kobe Bryant which I don't need so I will be removing them later.
+
+Sportrac (2021)[web scrape]. Retrieved from https://www.spotrac.com/nba/los-angeles-lakers/lebron-james-2257/cash-earnings/
+
+Sportrac. (2021) [web scrape]. Retrieved from
+https://www.spotrac.com/nba/washington-wizards/michael-jordan-8739/cash-earnings/
+
+I scraped career salary earnings from www.sportrac.com.
+
+## ACQUIRE DATA
+
+First we need to load some libraries and read the data sets.
+
+Career statistics of Michael Jordan and Lebron James was downloaded from Kaggle and stored on github as csv file. 
+```{r}
+library(tidyverse)
+library(gganimate)
+library(grid)
+library(ggpubr)
+library(plotly)
+library(ggridges)
+library(viridis)
+
+statsdf <- read.csv('https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/Final%20Prjoect/per_game_stats.csv')
+
+stattable <- as_tibble(statsdf)
+
+
+```
+
+```{r}
+totaldf <- read.csv('https://raw.githubusercontent.com/jihokim97/CUNY-SPS-MSDS-DATA-607/main/Final%20Prjoect/allgames_stats.csv')
+
+totaltable <- as_tibble(totaldf)
+```
+
+```{r}
+head(stattable)
+ncol(stattable)
+nrow(stattable)
+summary(stattable)
+head(totaltable)
+ncol(totaltable)
+nrow(totaltable)
+summary(totaltable)
+```
+
+From our initial exploration, the stattable holds number of interesting variables on career statistics including playoffs game and the total table includes statistic recorded on every single game each athlete played.
+
+# Web scrapped data
+
+Career earning of Michael Jordan and Lebron James was scraped from "www.sportrac.com".
+
+```{r}
+library(rvest)
+library(xml2)
+
+url <- "https://www.spotrac.com/nba/washington-wizards/michael-jordan-8739/cash-earnings/"
+MJ_year <- read_html(url) %>%
+  html_nodes(".center:nth-child(1)") %>%
+html_text()
+
+
+url <- "https://www.spotrac.com/nba/washington-wizards/michael-jordan-8739/cash-earnings/"
+MJ_salary <-read_html(url) %>%
+  html_nodes(".small+ .right") %>%
+  html_text() 
+
+url <- 'https://www.spotrac.com/nba/los-angeles-lakers/lebron-james-2257/cash-earnings/'
+LBJ_year <-read_html(url) %>%
+  html_nodes(".center:nth-child(1)") %>%
+  html_text() 
+
+url <- 'https://www.spotrac.com/nba/los-angeles-lakers/lebron-james-2257/cash-earnings/'
+LBJ_salary <-read_html(url) %>%
+  html_nodes(".small+ .right") %>%
+  html_text() 
+
+MJ_year <- as.tibble(MJ_year)
+MJ_salary <- as.tibble(MJ_salary)
+LBJ_year <- as.tibble(LBJ_year)
+LBJ_salary <- as.tibble(LBJ_salary)
+```
+
+If we look at the scraped data it shows that there have to be lots of tidy and transformation to be done in order to perform analysis.
+
+## TIDY AND TRNSFORM
+
+The two data from Kaggle contains the statistics of Kobe Bryant which I don't need so I will be removing those rows containing observations of Kobe Bryant.
+
+```{r}
+stattable <- stattable%>%subset(Player != 'Kobe Bryant')
+
+totaltable <- totaltable%>%subset(Player != 'Kobe Bryant')
+```
+
+I noticed that the some columns are named strangely so I had to change them.
+
+```{r}
+colnames(stattable)[c(11:18, 21)] <- c("FG%", "3P", "3PA", "3P%", "2P",
+                                          "2PA", "2P%", "eFG%", "FT%")
+colnames(totaltable)[c(11, 12, 13, 14, 17)] <- c("FG%", "3P", "3PA", "3P%", "FT%")
+
+```
+
+The goal is here to acquire variable that would be desired so I created new tabble using dplyr functions only containing useful observations.
+
+```{r}
+MJppg <- stattable %>%
+  filter(Player=="Michael Jordan") %>%
+  select(Season, PTS, TRB, AST, RSorPO) %>%
+  mutate(Season=as.numeric(substr(Season, 1, 4))) %>%
+  rename(Assists=AST,
+         Points=PTS,
+         Rebounds=TRB) %>%
+  gather(Stats, Value, 2:4)
+```
+
+```{r}
+MJshooting <- stattable %>%
+  filter(Player=="Michael Jordan") %>%
+  select(Season, `3P%`, `2P%`, `FT%`, RSorPO) %>%
+  mutate(Season=as.numeric(substr(Season, 1, 4))) %>%
+  gather(Stats, Value, 2:4)
+```
+
+MJppg contains points, rebounds, assists per game recorded by Michael Jordan and RSorPO indicates wheather it was regular season or playoffs and MJ shooting contains shooting (2pts,3pts,free throw) percentage of Michael jordan. 
+
+The same methods were applied to data of Lebron James as well.
+```{r}
+LBJppg <- stattable %>%
+  filter(Player=="Lebron James") %>%
+  add_row(Season="2003-04", RSorPO="Playoffs", .before=17) %>%
+  add_row(Season="2004-05", RSorPO="Playoffs", .before=18) %>%
+  add_row(Season="2018-19", RSorPO="Playoffs") %>%
+  select(Season, PTS, TRB, AST, RSorPO) %>%
+  mutate(Season=as.numeric(substr(Season, 1, 4))) %>%
+  rename(Assists=AST,
+         Points=PTS,
+         Rebounds=TRB) %>%
+  gather(Stats, Value, 2:4)
+```
+
+```{r}
+LBJshooting <- stattable %>%
+  filter(Player=="Lebron James") %>%
+  add_row(Season="2003-04", RSorPO="Playoffs", .before=17) %>%
+  add_row(Season="2004-05", RSorPO="Playoffs", .before=18) %>%
+  add_row(Season="2018-19", RSorPO="Playoffs") %>%
+  select(Season, `3P%`, `2P%`, `FT%`, RSorPO) %>%
+  mutate(Season=as.numeric(substr(Season, 1, 4))) %>%
+  gather(Stats, Value, 2:4)
+```
+
+Triple-Double in NBA is an achievement where player records double-digit total in at least three of NBA statistical categories in one game. It is extremely difficult to achieve and shows very well how a certain player is contributing to the game in every asepect rather than just scoring.
+
+```{r}
+tripledouble<-totaltable %>%
+  filter(PTS>=10, TRB>=10, AST>=10) %>%
+  group_by(Player, RSorPO) %>%
+  summarise(`Triple-Doubles`=n())
+```
+
+For the fun part, I decided to analyze the career salary between two players taking an assumption that Michael Jordan played in 80s and 90s so it would be significantly lower than Lebron James's.
+
+In order to compare salary between two players, the data was scraped and transformed into better form.
+
+```{r}
+LBJ_salary_pop<-LBJ_salary[-c(1,21:25),]
+LBJ_year_pop <- LBJ_year[-c(1:5,25:nrow(LBJ_year)),]
+
+MJ_salary_pop <- MJ_salary[-c(1,18:20),]
+MJ_year_pop <- MJ_year[-c(1,18:21),]
+
+LBJ_Salary_Final <-cbind(LBJ_year_pop,LBJ_salary_pop)
+MJ_Salary_Final <- cbind(MJ_year_pop,MJ_salary_pop)
+```
+
+We are going to add names to the table and combine them.
+```{r}
+lbj <- rep('Lebron James',19)
+LBJ_Salary_Final$name <- lbj
+
+mj <- rep('Michael Jordan', 16 )
+MJ_Salary_Final$name <- mj
+
+Salarydf<-rbind(LBJ_Salary_Final,MJ_Salary_Final)
+colnames(Salarydf)<- c('Year',"Salary",'Name')
+Salarydf$Salary<-gsub(",","",Salarydf$Salary)
+
+Salarydf
+```
+
+
+## VISUALIZE & ANALYZE
+
+Now we saw useful statistics in table, it could be more meaningful to visualize this information. I searched for more intersting visualization form and I came across animated cumulative graphs thanks using plotly function. sources: https://plotly.com/r/cumulative-animations/
+
+I created a function to collect the data and accumulate and this will be used on Michael Jordan and Lebron James data table.
+```{r}
+accumulate_by <- function(dat, var) {
+  var <- lazyeval::f_eval(var, dat)
+  lvls <- plotly:::getLevels(var)
+  dats <- lapply(seq_along(lvls), function(x) {
+    cbind(dat[var %in% lvls[seq(1, x)], ], frame = lvls[[x]])})
+    
+  dplyr::bind_rows(dats)
+}
+```
+
+```{r}
+MJlabel <- c("1984-85", "1985-86", "1986-87", "1987-88", "1988-89","1989-90", "1990-91", "1991-92", "1992-93", "1994-95","1995-96", "1996-97", "1997-98", "2001-02", "2002-03")
+
+MJppg <- MJppg%>% accumulate_by(~Season) %>%
+  ggplot(aes(x=Season, y=Value, colour=RSorPO, group=RSorPO, frame=frame)) +
+  geom_line(size=1) +
+  geom_point() +
+  facet_grid(Stats ~ . , scales="free") +
+  labs(title="Michael Jordan stats (1984-2003)
+       Points, Rebounds and Assists per game. Regular Season and Playoffs") +
+  scale_x_continuous(breaks=c(1984:1992, 1994:1997, 2001, 2002), labels=MJlabel) +
+  theme_bw() +
+  theme(axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.text.x=element_text(angle=45, hjust=1))
+```
+
+```{r}
+ggplotly(MJppg, height=600, width=900, tooltip=c("x", "y", "colour", "frame")) %>%
+  animation_slider(hide=T) %>%
+  layout(xaxis=list(title="Season"), showlegend=FALSE)
+```
+
+```{r}
+lbjlabel <- c("2003-04", "2004-05", "2005-06", "2006-07", "2007-08",
+                     "2008-09", "2009-10", "2010-11", "2011-12", "2012-13",
+                     "2013-14", "2014-15", "2015-16", "2016-17", "2017-18",
+                     "2018-19")
+LBJppg<-LBJppg%>% accumulate_by(~Season) %>%
+  ggplot(aes(x=Season, y=Value, colour=RSorPO, group=RSorPO, frame=frame)) +
+  geom_line(size=1) +
+  geom_point(aes(colour=RSorPO, group=RSorPO)) +
+  facet_grid(Stats ~ . , scales="free") +
+  labs(title="Lebron James stats (2003-2019)
+       Points, Rebounds and Assists per game. Regular Season and Playoffs") +
+  scale_x_continuous(breaks=2003:2018, labels=lbjlabel) +
+  theme_bw() +
+  theme(axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.text.x=element_text(angle=45, hjust=1))
+```
+
+```{r}
+ggplotly(LBJppg, height=600, width=900, tooltip=c("x", "y", "colour", "frame")) %>%
+  animation_slider(hide=T) %>%
+  layout(xaxis=list(title="Season"), showlegend=FALSE)
+```
+
+From the two graphs above, We are not so sure about who is better player here. Michael Jordan definitely averaged more points in playoffs and regular season than LeBron James did However Lebron James averaged more Assists and Rebounds than Micheal Jordan did by far in both regular season and playoffs. With a further analysis, I hope to gain futher clairty on who is better player.
+
+# Shooting Percentage Analysis
+
+```{r}
+MJshootingplot <- MJshooting%>%
+  accumulate_by(~Season) %>%
+  ggplot(aes(x=Season, y=Value, colour=RSorPO, group=RSorPO, frame=frame)) +
+  geom_line(size=1) +
+  geom_point() +
+  facet_grid(Stats ~ ., scales="free") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(breaks=c(1984:1992, 1994:1997, 2001, 2002), labels=MJlabel) +
+  labs(title="Michael Jordan stats (1984-2003)
+       3P%, 2P% and FT%. Regular Season and Playoffs") +
+  theme_bw() +
+  theme(axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.text.x=element_text(angle=45, hjust=1))
+```
+
+```{r}
+ggplotly(MJshootingplot, height=600, width=900, tooltip=c("x", "y", "colour", "frame")) %>%
+  animation_slider(hide=T) %>%
+  layout(xaxis=list(title="Season"), showlegend=FALSE)
+```
+
+Lebron Shooting
+```{r}
+LBJshootingplot<-LBJshooting%>%accumulate_by(~Season) %>%
+  ggplot(aes(x=Season, y=Value, colour=RSorPO, group=RSorPO, frame=frame)) +
+  geom_line(size=1) +
+  geom_point(aes(colour=RSorPO, group=RSorPO)) +
+  facet_grid(Stats ~ ., scales="free") +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(breaks=2003:2018, labels=lbjlabel) +
+  labs(title="Lebron James stats (2003-2019)
+       3P%, 2P% and FT%. Regular Season and Playoffs") +
+  theme_bw() +
+  theme(axis.title.y=element_blank(), 
+        axis.title.x=element_blank(), 
+        axis.text.x=element_text(angle=45, hjust=1)) 
+```
+
+```{r}
+ggplotly(LBJshootingplot, height=600, width=900, tooltip=c("x", "y", "colour", "frame")) %>%
+  animation_slider(hide=T) %>%
+  layout(xaxis=list(title="Season"), showlegend=FALSE)
+```
+
+From the animation line graph on shooting percentage, Michael Jordan had more success in 2 points attempt and free throws by far while Lebron James thrived in 3 points attempts showing higher percentage than Michael Jordan's
+
+# Triple Double
+```{r}
+tripledouble%>%ggplot(aes(x=reorder(Player, `Triple-Doubles`, sum), y=`Triple-Doubles`, fill=RSorPO)) +
+  geom_bar(stat="identity", color="black") +
+  geom_text(aes(label='',group=RSorPO), position=position_stack(vjust=0.5)) +
+  labs(title="Triple-Doubles", 
+       subtitle="Ten or more in three of the five statistics",
+       x="Player") +
+  theme_bw() +
+  theme(legend.position="bottom",
+        legend.title=element_blank(),
+        axis.title.y=element_blank()) +
+  coord_flip()
+```
+
+As I mentioned before, triple-double is a great statistics that shows how an athlete is a all around player. The bar graphs clearly shows that Lebron James has tremendous advantage over Michael Jordan in number of tripe double showing that he is a better all around player.
+
+Salary Analysis
+
+```{r}
+Salarydf$Salary <- str_sub(Salarydf$Salary, 2, str_length(Salarydf$Salary))
+Salarydf$Salary <- as.numeric(Salarydf$Salary)
+```
+
+```{r}
+library(scales)
+ggplot()+
+  geom_line(Salarydf, mapping = aes(Year, Salary, color = Name, group = Name), size = 1.2)+
+  scale_color_manual(values = c("#fdb927", "#6f263d"))+
+  scale_y_continuous(labels = dollar_format())+
+  theme_minimal()+
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(size = 30, hjust = 0.5,face = "bold", margin = margin(b = 5)),
+    axis.title = element_text(size = 20),
+    axis.text.y = element_text(margin = margin(l = 7)),
+    axis.text.x = element_text(margin = margin(b = 7), angle = 90)
+  )+
+  labs(color = NULL, y = "Salary", title = "Salary Comparisons")
+```
+
+Of course, it is not fair to compare salary between players that played in two different eras, I was not suprised with data of Lebron James because he is one of the highest paid athlete in the world however I was shocked that Michael Jordan made over 60 millions dollars from 1996 to 1998 considering average salary of NBA player today is 8.4 million dollars, proving how crucial and influential Michael Jordan was to NBA and the world.
+
+## Conclusion
+
+We can now return to the main question at hand:
+
+"Who is statistically better, Michael Jordan or Lebron James"?
+
+we have to take into consideration that Michael Jordan and Lebron James played in different era in which different aspect of the game was desired. In Michael Jordan's era, scoring was more desired and important than other stats where in era Lebron is currently playing in, player with multiple skills are more desired than someone who is just a scorer. Also many analyst argue that Michael Jordan played better defense than Lebron James proven by his winning of multiple defensive player of the year awards. Defensive ratings and statistics are not shown and recorded on stat sheet but they are important skills that separate from one player to another. With those assumptions in my mind, it can be concluded that Michael Jordan scored more points more efficiently than Lebron James did while Lebron James without a doubt is better all around player who can assist and rebound more than Michael Jordan.
+
